@@ -20,13 +20,13 @@ public class HibernateConfiguration {
 	@Value("${db.driver}")
 	private String DRIVER;
 
-	@Value("${db.password}")
+	@Value("${spring.datasource.password}")
 	private String PASSWORD;
 
-	@Value("${db.url}")
+	@Value("${spring.datasource.url}")
 	private String URL;
 
-	@Value("${db.username}")
+	@Value("${spring.datasource.username}")
 	private String USERNAME;
 
 	@Value("${hibernate.dialect}")
@@ -51,7 +51,7 @@ public class HibernateConfiguration {
 		return dataSource;
 	}
 
-	@Bean
+	@Bean(name="entityManagerFactory")
 	public LocalSessionFactoryBean sessionFactory() {
 		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
 		sessionFactory.setDataSource(dataSource());
