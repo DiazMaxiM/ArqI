@@ -1,7 +1,9 @@
 package ar.edu.mercadogratis.app.service;
 
-import ar.edu.mercadogratis.app.dao.GenericDao;
+import ar.edu.mercadogratis.app.dao.ProductRepository;
+import ar.edu.mercadogratis.app.dao.specification.ProductSpecification;
 import ar.edu.mercadogratis.app.model.Product;
+import ar.edu.mercadogratis.app.model.SearchProductRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,25 +16,45 @@ import java.util.Optional;
 @Service
 public class ProductService {
 
-    private final GenericDao<Product> productDao;
+    private final ProductRepository productRepository;
 
     @Transactional
     public Optional<Product> getProduct(Long productId) {
-        return Optional.ofNullable(productDao.get(productId));
+        return productRepository.findById(productId);
     }
 
     @Transactional
-    public Long saveProduct(Product product) {
-        return productDao.save(product);
+    public Product saveProduct(Product product) {
+        return productRepository.save(product);
+    }
+
+    @Transactional
+    public Iterable<Product> saveAllProducts(List<Product> products) {
+        return productRepository.saveAll(products);
     }
 
     @Transactional
     public void updateProduct(Product product) {
-        productDao.update(product);
+        productRepository.save(product);
     }
 
     @Transactional
-    public List<Product> listProducts() {
-        return productDao.list();
+    public Iterable<Product> listProducts(String seller) {
+        return productRepository.findBySeller(seller);
+    }
+
+    @Transactional
+    public void deleteProduct(Long productId) {
+        productRepository.deleteById(productId);
+    }
+
+    @Transactional
+    public List<Product> searchProduct(SearchProductRequest searchProductRequest) {
+        return productRepository.findAll(new ProductSpecification(searchProductRequest));
+    }
+
+    @Transactional
+    public void deleteAll() {
+        productRepository.deleteAll();
     }
 }

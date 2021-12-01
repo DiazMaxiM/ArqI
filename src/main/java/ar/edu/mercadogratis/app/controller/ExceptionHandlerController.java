@@ -5,15 +5,27 @@ import ar.edu.mercadogratis.app.exceptions.ApiException;
 import ar.edu.mercadogratis.app.exceptions.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+import javax.validation.ValidationException;
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
-public class ControllerExceptionHandler {
+public class ExceptionHandlerController {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiError> handleNotFoundException(NotFoundException e) {
         return handleErrorResponse(e, HttpStatus.NOT_FOUND.value());
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiError> handleValidationException(ValidationException e) {
+        return handleErrorResponse(buildApiError(e));
     }
 
     public ResponseEntity<ApiError> handleErrorResponse(ApiException e, int httpStatus) {
@@ -30,6 +42,13 @@ public class ControllerExceptionHandler {
                 .cause(e.getCode())
                 .message(e.getDescription())
                 .status(status)
+                .build();
+    }
+
+    private ApiError buildApiError(ValidationException validationException) {
+        return ApiError.builder()
+                .message(validationException.getMessage())
+                .status(HttpStatus.BAD_REQUEST.value())
                 .build();
     }
 }
